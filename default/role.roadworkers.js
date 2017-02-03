@@ -1,4 +1,4 @@
-var roleRepairer = {
+var roleRoadRepair = {
 
     /** @param {Creep} creep **/
     run: function(creep) 
@@ -17,17 +17,14 @@ var roleRepairer = {
 
 	    if(creep.memory.repairing) 
 	    {
-	        
-	        // Looks for structures and removes any roads. so that more important sturctures can get repaired. 
-	        // will prolly remove walls.. and make a wall repairer
-	        
+
             var targets = creep.room.find(FIND_STRUCTURES, 
             {
-                filter: object => object.structureType != STRUCTURE_ROAD && object.structureType != STRUCTURE_WALL && object.hits < object.hitsMax
+                filter: object => object.structureType == STRUCTURE_ROAD && object.hits < object.hitsMax
             });
 
-            // Sorts them by the amount of damage. not really the most effective (some sturcture decay faster and have higher health) it works
             targets.sort((a,b) => a.hits - b.hits);
+            
 
             if(targets.length > 0) 
             {
@@ -39,7 +36,6 @@ var roleRepairer = {
 	    }
 	    else 
 	    {
-	        // Pull from containers first for energy filtering 
 	       var containers = creep.room.find(FIND_STRUCTURES, 
             {
                     filter: (structure) => {
@@ -48,7 +44,6 @@ var roleRepairer = {
                     }
             });
             
-            // Check for containers
             if(containers.length > 0)
             {
                 if(containers[0].transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
@@ -59,10 +54,7 @@ var roleRepairer = {
             }
             else
             {
-                // if no containers have engergy, begin harvesting them selves
-                // These repair creeps will go tp a specific source I have desinated for them
                 var target = Game.getObjectById('b357077426772ba');
-                
                 if(creep.harvest(target) == ERR_NOT_IN_RANGE) 
                 {
                     creep.moveTo(target);
@@ -72,4 +64,4 @@ var roleRepairer = {
 	}
 };
 
-module.exports = roleRepairer;
+module.exports = roleRoadRepair;

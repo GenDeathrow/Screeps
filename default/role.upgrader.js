@@ -17,7 +17,9 @@ var roleUpgrader = {
             {
                 if(containers[0].transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.moveTo(containers[0]);
+                    var path = creep.pos.findPathTo(containers[0]);
+                    creep.moveByPath(path);
+                   // creep.moveTo(containers[0]);
                     
                 }
             }
@@ -35,7 +37,9 @@ var roleUpgrader = {
         {
             if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) 
             {
-                creep.moveTo(creep.room.controller);
+                var path = creep.pos.findPathTo(creep.room.controller);
+                creep.moveByPath(path);
+                //creep.moveTo(creep.room.controller);
             }
         }
 	}
