@@ -19,17 +19,32 @@ var roleRepairer = {
 	    {
 	        
 	        // Looks for structures and removes any roads. so that more important sturctures can get repaired. 
-	        // will prolly remove walls.. and make a wall repairer
-	        
+
             var targets = creep.room.find(FIND_STRUCTURES, 
             {
                 filter: object => object.structureType != STRUCTURE_ROAD && object.structureType != STRUCTURE_WALL && object.hits < object.hitsMax
             });
+            
+           // Pull from containers that have hitpoint lose
+	       var containers = creep.room.find(FIND_STRUCTURES, 
+            {
+                    filter: (structure) => {
+                        return (structure.structureType == STRUCTURE_CONTAINER) && structure.hits < structure.hitsMax;
+                    }
+            });
 
             // Sorts them by the amount of damage. not really the most effective (some sturcture decay faster and have higher health) it works
             targets.sort((a,b) => a.hits - b.hits);
-
-            if(targets.length > 0) 
+            
+            // This forces the repaiers to repair containers first.. got tired of them skipping it.. than they will repair other stuff. 
+            if(containers.length > 0)
+            {
+                if(creep.repair(containers[0]) == ERR_NOT_IN_RANGE) 
+                {
+                    creep.moveTo(containers[0]);    
+                }
+            }
+            else if(targets.length > 0) 
             {
                 if(creep.repair(targets[0]) == ERR_NOT_IN_RANGE) 
                 {
