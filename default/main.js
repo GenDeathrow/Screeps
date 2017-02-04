@@ -4,12 +4,13 @@ var roleBuilder = require('role.builder');
 var roleRepairer = require('role.repairer');
 var roleRoadWorker = require('role.roadworkers');
 var roleWallWorker = require('role.wallWorker');
+var roleWarrior = require('role.warrior');
 var roleTroll = require('role.troll');
+var roleHauler = require('role.haulers');
 
 require('name_generator');
 
 module.exports.loop = function () {
-
 
     // When a creep dies they removes them from memory << YOU WANT THIS
     for(var name in Memory.creeps) {
@@ -45,12 +46,49 @@ module.exports.loop = function () {
     // Spawn my higher tier harvesters first
     if(harvesters.length < 4) 
     {
-        var newName = Game.spawns['Gehross'].createCreep([WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE], Creep.getRandomName('[H][Mk3]'), {role: 'harvester'});
+        
+        var source1 = _.filter(Game.creeps, (creep) => creep.memory.hasSource == 'a80c077426766aa');
+        var source2 = _.filter(Game.creeps, (creep) => creep.memory.hasSource == 'b357077426772ba');
+        
+        var source = "";
+        if(source1.length < 2)
+        {
+            source = 'a80c077426766aa';
+        }
+        else if(source2.length < 2)
+        {
+            source = 'b357077426772ba';
+        }
+        
+        var newName = Game.spawns['Gehross'].createCreep([WORK,WORK,WORK,WORK,WORK,WORK,CARRY,CARRY,MOVE], Creep.getRandomName('[H][Mk3]'), {role: 'harvester', hasSource: source});
         if(newName == 0)
         {
-            console.log('Spawning new harvester: ' + newName);
+            console.log('Spawning new harvester: ' + newName +' S:'+ source);
         }
     }
+    
+     var hauler = _.filter(Game.creeps, (creep) => creep.memory.role == 'hauler');
+
+    if(hauler.length < 4) 
+    {
+        
+        if(hauler.length == 0)
+        {
+            var newName = Game.spawns['Gehross'].createCreep([CARRY, MOVE], Creep.getRandomName('[H]'), {role: 'hauler'});
+            if(newName  == 0)
+            {
+                console.log('Spawning new wall Emergency Hauler: ' + newName);
+            }
+        }else
+        {
+            var newName = Game.spawns['Gehross'].createCreep([CARRY, CARRY,CARRY,CARRY, CARRY, CARRY,MOVE, MOVE], Creep.getRandomName('[H]'), {role: 'hauler'});
+            if(newName  == 0)
+            {
+                console.log('Spawning new wall Hauler: ' + newName);
+            }
+        }
+    }
+
     
     // If all harvesters die
     if(harvesters.length == 0) 
@@ -62,8 +100,19 @@ module.exports.loop = function () {
         }
     }
     
+        var warrior = _.filter(Game.creeps, (creep) => creep.memory.role == 'warrior');
+        if(Game.spawns['Gehross'].pos.findClosestByRange(FIND_HOSTILE_CREEPS) &&warrior.length < 10) 
+        {
+            var newName = Game.spawns['Gehross'].createCreep([ATTACK, ATTACK, ATTACK, ATTACK, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE], Creep.getRandomName('[W]'), {role: 'warrior'});
+           if(newName == 0)
+            {
+                console.log('Spawning new Warrior: ' + newName);
+            }
+        }
+        
+        
     // Dont spawn anything until at least x amount harvesters exist
-    if(harvesters.length >= 3)
+    if(harvesters.length >= 3 && hauler.length >= 1)
     {
         var builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
 
@@ -73,18 +122,19 @@ module.exports.loop = function () {
         {
             var newName = Game.spawns['Gehross'].createCreep([WORK,WORK, CARRY,CARRY,MOVE], Creep.getRandomName('[B]'), {role: 'builder'});
             
-            if(newName != ERR_NOT_ENOUGH_ENERGY)
+            if(newName == 0)
             {
                 console.log('Spawning new builder: ' + newName);
             }
         }
+  
 
         // Upgraders Spawning    
         var upgrader = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
         if(upgrader.length < 6) 
         {
             var newName = Game.spawns['Gehross'].createCreep([WORK,WORK,WORK,CARRY,CARRY,CARRY, MOVE, MOVE], Creep.getRandomName('[U]'), {role: 'upgrader'});
-            if(newName != ERR_NOT_ENOUGH_ENERGY)
+            if(newName == 0)
             {
                 console.log('Spawning new upgrader: ' + newName);
             }
@@ -92,10 +142,10 @@ module.exports.loop = function () {
     
         var repairer = _.filter(Game.creeps, (creep) => creep.memory.role == 'repairer');
 
-        if(repairer.length < 3) 
+        if(repairer.length < 4) 
         {
-            var newName = Game.spawns['Gehross'].createCreep([WORK, WORK, WORK, CARRY, CARRY, MOVE], Creep.getRandomName('[R]'), {role: 'repairer'});
-           if(newName != ERR_NOT_ENOUGH_ENERGY)
+            var newName = Game.spawns['Gehross'].createCreep([WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE], Creep.getRandomName('[R]'), {role: 'repairer'});
+           if(newName == 0)
             {
                 console.log('Spawning new repairer: ' + newName);
             }
@@ -103,10 +153,10 @@ module.exports.loop = function () {
         
         var roadworker = _.filter(Game.creeps, (creep) => creep.memory.role == 'roadworker');
 
-        if(roadworker.length < 3) 
+        if(roadworker.length < 5) 
         {
             var newName = Game.spawns['Gehross'].createCreep([WORK, WORK, WORK, CARRY, CARRY, MOVE], Creep.getRandomName('[RW]'), {role: 'roadworker'});
-           if(newName != ERR_NOT_ENOUGH_ENERGY)
+           if(newName == 0)
             {
                 console.log('Spawning new road worker: ' + newName);
             }
@@ -114,10 +164,10 @@ module.exports.loop = function () {
         
         var wallworker = _.filter(Game.creeps, (creep) => creep.memory.role == 'wallworker');
 
-        if(wallworker.length < 2) 
+        if(wallworker.length < 3) 
         {
-            var newName = Game.spawns['Gehross'].createCreep([WORK, WORK, WORK, CARRY, CARRY, MOVE], Creep.getRandomName('[WW]'), {role: 'wallworker'});
-           if(newName != ERR_NOT_ENOUGH_ENERGY)
+            var newName = Game.spawns['Gehross'].createCreep([WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY,MOVE, MOVE], Creep.getRandomName('[WW]'), {role: 'wallworker'});
+           if(newName == 0)
             {
                 console.log('Spawning new wall worker: ' + newName);
             }
@@ -137,7 +187,7 @@ module.exports.loop = function () {
         }
   */      
     }
-    
+
     
     for(var name in Game.creeps) 
     {
@@ -170,6 +220,14 @@ module.exports.loop = function () {
         if(creep.memory.role == 'troll') 
         {
             roleTroll.run(creep);
+        }
+        if(creep.memory.role == 'warrior') 
+        {
+            roleWarrior.run(creep);
+        }
+        if(creep.memory.role == 'hauler')
+        {
+            roleHauler.run(creep);
         }
     }
 }

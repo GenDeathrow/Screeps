@@ -30,7 +30,7 @@ var roleRoadRepair = {
             {
                 if(creep.repair(targets[0]) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.moveTo(targets[0]);    
+                    creep.moveByPath(creep.pos.findPathTo(targets[0]));    
                 }
             }
 	    }
