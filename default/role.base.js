@@ -1,9 +1,10 @@
+var returnHome = require('return_Home');
 require('name_generator');
 
 // Sets role for Creep.
 function getDefaultRole()
 {
-    return "warrior";
+    return "example";
 }
 
 // Grap this creeps custom tick counter
@@ -25,7 +26,7 @@ function clearTask(creep)
     setTask(creep, null);    
 }
 
-var roleWarrior = {
+var roleBase = {
 	
 	// do not change this, change the default role above
 	getRole: function()
@@ -38,8 +39,8 @@ var roleWarrior = {
 	shouldSpawn: function(spawn)
 	{
 	     var creepInRoom = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == getDefaultRole()}});
-
-	     if(spawn.pos.findClosestByRange(FIND_HOSTILE_CREEPS) && creepInRoom.length <= 3)
+	     
+	     if(creepInRoom.length < 1)
 	     {
             return true;
 	     }
@@ -52,41 +53,33 @@ var roleWarrior = {
         var stats;
         if(spawn.room.controller.level <= 3)
         {
-            stats = [TOUGH, TOUGH, TOUGH,TOUGH,ATTACK, MOVE];
+            stats = [TOUGH,TOUGH];
         }
         else
         {
-           stats = [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, MOVE, MOVE  ,MOVE];
+           stats = [TOUGH,TOUGH,TOUGH];
         }
 
-        if(spawn.createCreep(stats, Creep.getRandomName('[W]'), {role: getDefaultRole(), taskTick: 0}) == 0)
+        if(spawn.createCreep(stats, Creep.getRandomName('[E]'), {role: getDefaultRole(), taskTick: 0}) == 0)
         {
             console.log('Spawning new level '+ spawn.room.controller.level +' '+ getDefaultRole() +' '+ newName);
         }
+   
 	},
 
     /** @param {Creep} creep **/
     run: function(creep) 
     {
-        var closestHostile = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-        
-        if(closestHostile) 
-        {
-            if(creep.attack(closestHostile) == ERR_NOT_IN_RANGE) 
-            {
-                    creep.moveTo(closestHostile);
-            }
-            else
-            {
-                    creep.moveTo(36,36);
-            }
-        }
+        //Add your code here
         
         if(getTaskTick(creep) > 300){ clearTask(creep); }
         creep.memory.taskTick++;
         
+      // console.log(roleBase.getTaskTick(creep))
 	}
+
+
 };
 
-module.exports =roleWarrior;
+module.exports=roleBase;
     

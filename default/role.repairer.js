@@ -1,13 +1,84 @@
+var returnHome = require('return_Home');
+require('name_generator');
+
+// Sets role for Creep.
+function getDefaultRole()
+{
+    return "repairer";
+}
+
+// Grap this creeps custom tick counter
+function getTaskTick(creep)
+{
+    return creep.memory.taskTick;
+}
+	
+// Set a task string (used if you need to lock a task)
+function setTask(creep, task)
+{
+    creep.memory.lockedTask = task;
+}
+
+// Cleares task and resets tick handler
+function clearTask(creep)
+{
+    creep.memory.lockedTask = null;
+    setTask(creep, null);    
+}
+
 var roleRepairer = {
+	
+	// do not change this, change the default role above
+	getRole: function()
+	{
+	    return getDefaultRole();
+	},
+	
+	/** @param {Spawn} spawn**/
+	// determin if you want to spawn this type
+	shouldSpawn: function(spawn)
+	{
+	     var creepInRoom = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == getDefaultRole()}});
+	     
+	     if(creepInRoom.length < 2)
+	     {
+            return true;
+	     }
+	     else return false;
+	},
+	
+	// Add your spawning code here.
+	spawnCreep: function(spawn)
+	{
+        var stats;
+        if(spawn.room.controller.level <= 3)
+        {
+            stats = [WORK, CARRY, CARRY, MOVE];
+        }
+        else
+        {
+           stats = [WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE];
+        }
+
+        if(spawn.createCreep(stats, Creep.getRandomName('[R]'), {role: getDefaultRole(), taskTick: 0}) == 0)
+        {
+            console.log('Spawning new level '+ spawn.room.controller.level +' '+ getDefaultRole() +' '+ newName);
+        }
+   
+	},
 
     /** @param {Creep} creep **/
     run: function(creep) 
     {
 
+       // if they get lost find thier way back home.
+        
+        if(returnHome.run(creep)) return;
+
 	    if(creep.memory.repairing && creep.carry.energy == 0) 
 	    {
             creep.memory.repairing = false;
-            creep.say('harvesting');
+            creep.say('Harvesting');
 	    }
 	    if(!creep.memory.repairing && creep.carry.energy == creep.carryCapacity) 
 	    {
@@ -34,8 +105,8 @@ var roleRepairer = {
             });
 
             // Sorts them by the amount of damage. not really the most effective (some sturcture decay faster and have higher health) it works
-            targets.sort((a,b) => a.hits - b.hits);
-            
+            targets.sort((a,b) => (a.hits/a.hitsMax) - (b.hits/b.hitsMax));
+
             // This forces the repaiers to repair containers first.. got tired of them skipping it.. than they will repair other stuff. 
             if(containers.length > 0)
             {
@@ -62,29 +133,31 @@ var roleRepairer = {
                             structure.store[RESOURCE_ENERGY] > 0;
                     }
             });
+
+            var mainDropoffContainer =Game.getObjectById('47d1c0864557dae');
             
             // Check for containers
-            if(containers.length > 0)
+            if(mainDropoffContainer && mainDropoffContainer.energy > 0)
+            {
+                if(mainDropoffContainer.transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+                {
+                    creep.moveTo(mainDropoffContainer);
+                }
+            }
+            else if(containers.length > 0)
             {
                 if(containers[0].transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
                 {
                     creep.moveTo(containers[0]);
-                    
                 }
             }
-            else
-            {
-                // if no containers have engergy, begin harvesting them selves
-                // These repair creeps will go tp a specific source I have desinated for them
-                var target = Game.getObjectById('b357077426772ba');
-                
-                if(creep.harvest(target) == ERR_NOT_IN_RANGE) 
-                {
-                    creep.moveTo(target);
-                }
-            }
-	    }
+        }
+        if(getTaskTick(creep) > 300){ clearTask(creep); }
+        creep.memory.taskTick++;
+        
 	}
+
+
 };
 
 module.exports = roleRepairer;
