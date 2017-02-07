@@ -1,5 +1,4 @@
 var returnHome = require('return_Home');
-require('name_generator');
 
 // Sets role for Creep.
 function getDefaultRole()
@@ -39,8 +38,9 @@ var roleRoadRepair = {
 	shouldSpawn: function(spawn)
 	{
 	     var creepInRoom = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == getDefaultRole()}});
+	     var hasRoads = spawn.room.find(FIND_STRUCTURES, {filter: function(structure) {return structure.structureType == STRUCTURE_ROAD}}) > 0;
 	     
-	     if(false && creepInRoom.length < 4)
+	     if(hasRoads && creepInRoom.length < 3)
 	     {
             return true;
 	     }
@@ -51,7 +51,7 @@ var roleRoadRepair = {
 	spawnCreep: function(spawn)
 	{
         var stats;
-        if(spawn.room.controller.level <= 3)
+        if(spawn.room.controller.level <= 4)
         {
             stats = [WORK, CARRY, CARRY, CARRY, MOVE];
         }

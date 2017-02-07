@@ -1,5 +1,4 @@
 var returnHome = require('return_Home');
-require('name_generator');
 
 // Sets role for Creep.
 function getDefaultRole()
@@ -40,26 +39,26 @@ var roleBuilder = {
 	{
 	     var creepInRoom = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == getDefaultRole()}});
          var possibleConstruction = spawn.room.find(FIND_CONSTRUCTION_SITES);    
-         
-         
-	     if(possibleConstruction.length > 0 && creepInRoom.length < 2)
+
+	     if(possibleConstruction.length > 0 && creepInRoom.length < 3)
 	     {
             return true;
 	     }
 	     else return false;
+
 	},
 	
 	// Add your spawning code here.
 	spawnCreep: function(spawn)
 	{
         var stats;
-        if(spawn.room.controller.level <= 3)
+        if(spawn.room.controller.level < 4)
         {
             stats = [WORK, CARRY,CARRY,MOVE];
         }
         else
         {
-           stats = [WORK,WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,MOVE, MOVE];
+           stats = [WORK,WORK,CARRY,CARRY,CARRY, MOVE];
         }
 
         if(spawn.createCreep(stats, Creep.getRandomName('[B]'), {role: getDefaultRole(), taskTick: 0}) == 0)
@@ -107,7 +106,7 @@ var roleBuilder = {
             
             if(containers.length > 0)
             {
-                if(containers[0].transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE || (getTask(creep) == "container" && containers[0])) 
+                if(containers[0].transfer(creep, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE || creep.memory.lockedTask == "container" && containers[0]) 
                 {
                     creep.moveTo(containers[0]);
                     setTask(creep,"container");
@@ -118,14 +117,13 @@ var roleBuilder = {
 	        {
                 var target = creep.pos.findClosestByRange(FIND_SOURCES_ACTIVE);
             
-                if(creep.harvest(target) == ERR_NOT_IN_RANGE || (getTask(creep) == "harvest" && target)) 
+                if(creep.harvest(target) == ERR_NOT_IN_RANGE || creep.memory.lockedTask == "harvest" && target) 
                 {
                     setTask(creep,"harvest");
                     creep.moveTo(target);
                 }
 	        }
 	        
-	        cnt++;
 	    }
         
         if(getTaskTick(creep) > 300){ clearTask(creep); }

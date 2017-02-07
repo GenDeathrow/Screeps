@@ -1,5 +1,6 @@
 var returnHome = require('return_Home');
-require('name_generator');
+var harvester = require('role.harvester');
+var haulers = require('role.haulers');
 
 // Sets role for Creep.
 function getDefaultRole()
@@ -39,8 +40,10 @@ var roleRepairer = {
 	shouldSpawn: function(spawn)
 	{
 	     var creepInRoom = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == getDefaultRole()}});
+	     var hasHarvester = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == harvester.getRole()}}).length > 3;
+	     var hasHauler = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == haulers.getRole()}}).length > 2;
 	     
-	     if(creepInRoom.length < 2)
+	     if(creepInRoom.length < 2 && hasHarvester && hasHauler)
 	     {
             return true;
 	     }
@@ -57,7 +60,7 @@ var roleRepairer = {
         }
         else
         {
-           stats = [WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, MOVE];
+           stats = [WORK, WORK, CARRY, CARRY, CARRY, MOVE];
         }
 
         if(spawn.createCreep(stats, Creep.getRandomName('[R]'), {role: getDefaultRole(), taskTick: 0}) == 0)

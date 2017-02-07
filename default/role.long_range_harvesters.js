@@ -1,5 +1,4 @@
 var returnHome = require('return_Home');
-require('name_generator');
 
 // Sets role for Creep.
 function getDefaultRole()
@@ -38,12 +37,15 @@ var roleLongHarvester = {
 	// determin if you want to spawn this type
 	shouldSpawn: function(spawn)
 	{
-	     var creepInRoom = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == getDefaultRole()}});
-	     
-	     if(false && creepInRoom.length < 4)
-	     {
+        var creepInRoom = _.filter(Game.creeps, (creep) => creep.memory.role == getDefaultRole());
+         
+        var harvesters = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == 'harvester'}});       
+        var haulers = spawn.room.find(FIND_CREEPS,  {filter: function(object) {return object.memory.role == 'haulers'}});
+        
+	    if(creepInRoom.length < 5 && harvesters >= 5 && haulers >= 2)
+	    {
             return true;
-	     }
+	    }
 	     else return false;
 	},
 	
@@ -51,12 +53,19 @@ var roleLongHarvester = {
 	spawnCreep: function(spawn)
 	{
         var stats;
-        if(spawn.room.controller.level > 0)
+
+         
+         
+        if(spawn.room.controller.level <= 4)
+        {
+            stats = [WORK,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE];
+        }
+        else if(spawn.room.controller.level > 4)
         {
             stats = [WORK,WORK,WORK,CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE];
         }
 
-        if(spawn.createCreep(stats, Creep.getRandomName('[LH]'), {role: getDefaultRole(), taskTick: 0, dropoff: '546afe20600ec28', dest: ''}) == 0)
+        if(spawn.createCreep(stats, Creep.getRandomName('[LH]'), {role: getDefaultRole(), taskTick: 0, dropoff: '546afe20600ec28',home: spawn.name, dest: 'W2N7'}) == 0)
         {
             console.log('Spawning new level '+ spawn.room.controller.level +' '+ getDefaultRole() +' '+ newName);
         }
@@ -89,16 +98,18 @@ var roleLongHarvester = {
         }
         else 
         {
-            var dropoff = Game.getObjectById(creep.memory.dropOff);
+            returnHome.run(creep);
             
-            if(!returnHome.run(creep)) {
+     
+            if(creep.room.name == Game.spawns[creep.memory.home].room.name) 
+            {
+                //console.log(creep.transfer(dropoff, RESOURCE_ENERGY)); 
+                var dropoff = Game.getObjectById(creep.memory.dropoff);
                 
-                console.log(creep.transfer(dropoff, RESOURCE_ENERGY)); 
-                if(creep.transfer(dropoff, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
+                if(dropoff && creep.transfer(dropoff, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
                 {
-                    creep.say('home');
                     creep.moveTo(dropoff);
-                } 
+                }
             }
             
         }

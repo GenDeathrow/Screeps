@@ -1,4 +1,3 @@
-require('name_generator');
 
 // Sets role for Creep.
 function getDefaultRole()
@@ -56,7 +55,7 @@ var roleWarrior = {
         }
         else
         {
-           stats = [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, ATTACK, MOVE, MOVE  ,MOVE];
+           stats = [TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, ATTACK, ATTACK, MOVE,MOVE];
         }
 
         if(spawn.createCreep(stats, Creep.getRandomName('[W]'), {role: getDefaultRole(), taskTick: 0}) == 0)

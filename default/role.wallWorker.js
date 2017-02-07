@@ -1,5 +1,4 @@
 var returnHome = require('return_Home');
-require('name_generator');
 
 // Sets role for Creep.
 function getDefaultRole()
@@ -39,8 +38,10 @@ var roleWallRepair = {
 	shouldSpawn: function(spawn)
 	{
 	     var creepInRoom = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == getDefaultRole()}});
+	     var hasWalls = spawn.room.find(FIND_STRUCTURES, {filter: function(structure) {return structure.structureType == STRUCTURE_WALL}}) > 0;
 	     
-	     if(false && creepInRoom.length < 2)
+	     
+	     if(hasWalls && creepInRoom.length < 2)
 	     {
             return true;
 	     }
@@ -57,7 +58,7 @@ var roleWallRepair = {
         }
         else
         {
-           stats = [WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY,MOVE, MOVE];
+           stats = [WORK, WORK, CARRY, CARRY, CARRY,MOVE, MOVE];
         }
 
         if(spawn.createCreep(stats, Creep.getRandomName('[E]'), {role: getDefaultRole(), taskTick: 0}) == 0)

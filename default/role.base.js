@@ -31,14 +31,14 @@ var roleBase = {
 	// do not change this, change the default role above
 	getRole: function()
 	{
-	    return getDefaultRole();
+	    return this.getDefaultRole();
 	},
 	
 	/** @param {Spawn} spawn**/
 	// determin if you want to spawn this type
 	shouldSpawn: function(spawn)
 	{
-	     var creepInRoom = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == getDefaultRole()}});
+	     var creepInRoom = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == this.getDefaultRole()}});
 	     
 	     if(creepInRoom.length < 1)
 	     {

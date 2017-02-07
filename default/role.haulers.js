@@ -40,7 +40,11 @@ var roleHauler = {
 	{
 	     var creepInRoom = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == getDefaultRole()}});
 	     
-	     if(creepInRoom.length < 3)
+	     var containers = spawn.room.find(FIND_STRUCTURES, {filter: function(structure) {return structure.structureType == STRUCTURE_CONTAINER}})
+	     
+	    
+	     
+	     if(creepInRoom.length < 4 && containers.length > 0)
 	     {
             return true;
 	     }
@@ -67,7 +71,7 @@ var roleHauler = {
 	    }
 	    if(sources[1] && !container)
 	    {
-	       var consearch = sources[0].pos.findClosestByRange(FIND_STRUCTURES, {
+	       var consearch = sources[1].pos.findClosestByRange(FIND_STRUCTURES, {
                 filter: (structure) => {
                     return (structure.structureType == STRUCTURE_CONTAINER);
                 }
@@ -77,18 +81,21 @@ var roleHauler = {
 	    }
 
 
-
-        
+        var creepInRoom = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == getDefaultRole()}});
+        if(creepInRoom == 0)
+        {
+            Stats = [CARRY, MOVE];
+        }
         if(spawn.room.controller.level <= 3)
         {
             stats = [CARRY, CARRY, MOVE, MOVE];
         }
         else
         {
-           stats = [CARRY, CARRY,CARRY,CARRY, CARRY, CARRY,MOVE, MOVE, MOVE, MOVE];
+           stats = [CARRY, CARRY,CARRY, CARRY, MOVE];
         }
 
-        if(spawn.createCreep(stats, Creep.getRandomName('[H]'), {role: getDefaultRole(), mainContainer: container, taskTick: 0}) == 0)
+        if(spawn.createCreep(stats, Creep.getRandomName('[HL]'), {role: getDefaultRole(), mainContainer: container, taskTick: 0}) == 0)
         {
             console.log('Spawning new level '+ spawn.room.controller.level +' '+ getDefaultRole() +' '+ newName);
         }

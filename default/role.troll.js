@@ -1,5 +1,4 @@
 var returnHome = require('return_Home');
-require('name_generator');
 
 // Sets role for Creep.
 function getDefaultRole()

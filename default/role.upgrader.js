@@ -1,5 +1,7 @@
 var returnHome = require('return_Home');
-require('name_generator');
+var harvester = require('role.harvester');
+var haulers = require('role.haulers');
+
 
 // Sets role for Creep.
 function getDefaultRole()
@@ -37,10 +39,12 @@ var roleUpgrader = {
 	/** @param {Spawn} spawn**/
 	// determin if you want to spawn this type
 	shouldSpawn: function(spawn)
-	{
+	{  
 	     var creepInRoom = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == getDefaultRole()}});
-	     
-	     if(creepInRoom.length < 6)
+	     var hasHarvester = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == harvester.getRole()}}).length > 3;
+	     var hasHaulerCnt = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == haulers.getRole()}}).length > 2;
+
+	     if(creepInRoom.length < 8 && hasHarvester && hasHaulerCnt)
 	     {
             return true;
 	     }
@@ -51,17 +55,17 @@ var roleUpgrader = {
 	spawnCreep: function(spawn)
 	{
         var stats;
-        if(spawn.room.controller.level < 3)
+        if(spawn.room.controller.level < 4)
         {
             stats = [WORK,CARRY,CARRY, MOVE];
         }
-        else if(spawn.room.controller.level = 3)
+        else if(spawn.room.controller.level == 4)
         {
-            stats = [WORK,WORK,CARRY,CARRY,CARRY, MOVE];
+            stats = [WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE];
         }
         else
         {
-           stats = [WORK,WORK,WORK,CARRY,CARRY,CARRY, MOVE, MOVE];
+           stats = [WORK,WORK,WORK,CARRY,CARRY,CARRY,MOVE,MOVE];
         }
 
         if(spawn.createCreep(stats, Creep.getRandomName('[U]'), {role: getDefaultRole(), taskTick: 0}) == 0)
@@ -78,7 +82,7 @@ var roleUpgrader = {
         if(returnHome.run(creep)) return;
         
         // If no energy, go refill at container.. 
-	    if(creep.carry.energy == 0)
+	    if(creep.carry.energy == 0 && creep.carry.energy < creep.carryCapacity)
 	    {
    	        var container = creep.pos.findClosestByRange(FIND_STRUCTURES, 
             {

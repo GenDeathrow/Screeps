@@ -1,5 +1,4 @@
 var returnHome = require('return_Home');
-require('name_generator');
 
 // Sets role for Creep.
 function getDefaultRole()
@@ -74,18 +73,22 @@ var roleHarvester = {
             }
         }
 
+        var harvestersCNT = spawn.room.find(FIND_CREEPS, {filter: function(object) {return object.memory.role == getDefaultRole()}}).length;
         var stats;
-        
-        if(spawn.room.controller.level <= 3)
+        if(spawn.room.controller.level < 3 || harvestersCNT == 0)
         {
             stats = [WORK,CARRY,MOVE]
+        }
+        if(spawn.room.controller.level == 4 )
+        {
+            stats = [WORK,WORK,WORK,CARRY,MOVE];
         }
         else
         {
            stats = [WORK,WORK,WORK,WORK,CARRY,MOVE];
         }
 
-        if(spawn.createCreep(stats,  Creep.getRandomName('[H][Mk3]'), {role: getDefaultRole(), hasSource: sourceid, home: spawn.name}) == 0)
+        if(spawn.createCreep(stats,  Creep.getRandomName('[HV]'), {role: getDefaultRole(), hasSource: sourceid, home: spawn.name}) == 0)
         {
             console.log('Spawning new level '+ spawn.room.controller.level +' '+ getDefaultRole() +' '+ newName);
         }
@@ -130,29 +133,29 @@ var roleHarvester = {
         else {
             
             // Gets extensions, Spawn
-          var targets = creep.room.find(FIND_STRUCTURES, 
+          var targets = creep.pos.findClosestByRange(FIND_STRUCTURES, 
             {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_EXTENSION || 
                                 structure.structureType == STRUCTURE_SPAWN) && structure.energy < structure.energyCapacity;
                     }
-            });  
+            }); 
 
             // Gets containers
-            var containers = creep.pos.findClosestByPath(FIND_STRUCTURES, 
+            container = creep.pos.findClosestByRange(FIND_STRUCTURES, 
             {
-                    filter: (structure) => {
-                        return (structure.structureType == STRUCTURE_CONTAINER);
-                    }
+                filter: (structure) => {
+                    return (structure.structureType == STRUCTURE_CONTAINER) && structure.store[RESOURCE_ENERGY] < structure.storeCapacity;
+                }
             });
 
-            if(containers && creep.transfer(containers, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
+            if(container && creep.transfer(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) 
             {
-                creep.moveTo(containers);
-            }else if(targets.length > 0) // Fill extensions, Spawn, and Defense towers first
+                creep.moveTo(container);
+            }else if(targets) // Fill extensions, Spawn, and Defense towers
             {
-                if(creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0]);
+                if(creep.transfer(targets, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                    creep.moveTo(targets);
                 }
             }
         }
