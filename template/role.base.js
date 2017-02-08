@@ -23,7 +23,8 @@ function setTask(creep, task)
 function clearTask(creep)
 {
     creep.memory.lockedTask = null;
-    setTask(creep, null);    
+    creep.memory.taskTick = 0;
+    setTask(creep, null);
 }
 
 var roleBase = {
