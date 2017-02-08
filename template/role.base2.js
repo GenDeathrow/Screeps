@@ -23,6 +23,7 @@ function setTask(creep, task)
 function clearTask(creep)
 {
     creep.memory.lockedTask = null;
+    creep.memory.taskTick = 0;
     setTask(creep, null);    
 }
 
